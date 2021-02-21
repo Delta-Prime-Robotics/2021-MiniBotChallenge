@@ -90,8 +90,8 @@ public class RobotContainer {
   public double CalculuteSpeed(){
     // each axis goes from 0->1
     // full axis 2 is reverse, so it needs to be -1
-    double reverse = - m_controller.getRawAxis(2);
-    double forward =  m_controller.getRawAxis(3);
+    double reverse =  m_controller.getRawAxis(2);
+    double forward = - m_controller.getRawAxis(3);
  
     return (reverse + forward); 
   }
@@ -103,6 +103,6 @@ public class RobotContainer {
    */
   public Command getArcadeDriveCommand() {
     return new ArcadeDrive(
-        m_drivetrain, () -> -m_controller.getRawAxis(0), () -> CalculuteSpeed());
+        m_drivetrain, () -> CalculuteSpeed(), () -> m_controller.getRawAxis(0));
   }
 }
