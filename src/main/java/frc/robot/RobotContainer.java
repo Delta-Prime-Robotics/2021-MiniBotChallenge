@@ -85,6 +85,17 @@ public class RobotContainer {
     return m_chooser.getSelected();
   }
 
+  // we want forward to be axis 3 on the controller
+  // we want backwards to be axis 2 on the controller
+  public double CalculuteSpeed(){
+    // each axis goes from 0->1
+    // full axis 2 is reverse, so it needs to be -1
+    double reverse = - m_controller.getRawAxis(2);
+    double forward =  m_controller.getRawAxis(3);
+ 
+    return (reverse + forward); 
+  }
+
   /**
    * Use this to pass the teleop command to the main {@link Robot} class.
    *
@@ -92,6 +103,6 @@ public class RobotContainer {
    */
   public Command getArcadeDriveCommand() {
     return new ArcadeDrive(
-        m_drivetrain, () -> -m_controller.getRawAxis(1), () -> m_controller.getRawAxis(2));
+        m_drivetrain, () -> -m_controller.getRawAxis(0), () -> CalculuteSpeed());
   }
 }
