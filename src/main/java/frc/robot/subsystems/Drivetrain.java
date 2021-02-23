@@ -8,11 +8,12 @@ import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.sensors.RomiGyro;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
-  private static final double kCountsPerRevolution = 1440.0;
+  private static final double kCountsPerRevolution = 1400.0; // 1440.0
   private static final double kWheelDiameterInch = 2.75591; // 70 mm
 
   // The Romi has the left and right motors set to
@@ -42,8 +43,37 @@ public class Drivetrain extends SubsystemBase {
     resetEncoders();
   }
 
-  public void arcadeDrive(double xaxisSpeed, double zaxisRotate) {
-    m_diffDrive.arcadeDrive(xaxisSpeed, zaxisRotate);
+  public void arcadeDrive(double speed, double rotation) {
+    m_diffDrive.arcadeDrive(speed, rotation);
+  }  
+
+  public void stop() {
+    m_diffDrive.arcadeDrive(0, 0);
+  }
+
+  public void driveStraight(double speed) {
+    double turnScale = turnScale();
+    SmartDashboard.putNumber("Turn Scale", turnScale());
+    m_diffDrive.arcadeDrive(speed, -turnScale);
+  }
+
+  
+  /**
+   * @return rate of turn for driving straight via encoders
+   */
+  public double turnScale(){
+    double delta = getLeftDistanceInch()-getRightDistanceInch();
+    if (delta == 0.0)
+      return delta;
+
+    delta = delta * 100.0; // boost the delta since the Romi scale is small
+
+    double sign = delta/Math.abs(delta);
+    // cap the rate at 40%
+    if (Math.abs(delta) > 40)
+      return sign*0.4;
+
+    return delta/100.0;
   }
 
   public void resetEncoders() {
