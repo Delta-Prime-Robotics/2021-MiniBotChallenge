@@ -51,12 +51,16 @@ public class Drivetrain extends SubsystemBase {
     m_diffDrive.arcadeDrive(0, 0);
   }
 
+  /**
+   * Drive the robot straight, adjusting for drift
+   * 
+   * @param speed
+   */
   public void driveStraight(double speed) {
     double turnScale = turnScale();
     SmartDashboard.putNumber("Turn Scale", turnScale());
     m_diffDrive.arcadeDrive(speed, -turnScale);
   }
-
   
   /**
    * @return rate of turn for driving straight via encoders

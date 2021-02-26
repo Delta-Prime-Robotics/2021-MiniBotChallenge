@@ -7,17 +7,16 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.ArcadeDrive;
-import frc.robot.commands.AutonomousDistance;
-import frc.robot.commands.AutonomousTime;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.OnBoardIO;
+import frc.robot.Constants.GamePad;
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
 import frc.robot.subsystems.OnBoardIO.ChannelMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -70,6 +69,26 @@ public class RobotContainer {
         .whenActive(new PrintCommand("Button A Pressed"))
         .whenInactive(new PrintCommand("Button A Released"));
 
+    new JoystickButton(m_controller, GamePad.Button.RB)
+        .whenPressed(new TurnDegrees(0.4, 90, m_drivetrain))
+        .whenReleased(() -> m_drivetrain.stop());
+
+    new JoystickButton(m_controller, GamePad.Button.LB)
+      .whenPressed(new TurnDegrees(-0.4, 90, m_drivetrain))
+      .whenReleased(() -> m_drivetrain.stop());
+      
+    new JoystickButton(m_controller, GamePad.Button.Y)
+      .whenPressed(() -> m_drivetrain.resetGyro());
+      
+    new JoystickButton(m_controller, GamePad.Button.X)
+      .whenPressed(() -> m_drivetrain.resetEncoders());
+
+    new JoystickButton(m_controller, GamePad.Button.A)
+      .whenPressed(new DriveDistance(0.5, 18, m_drivetrain));
+
+    new JoystickButton(m_controller, GamePad.Button.B)
+      .whenPressed(new DriveDistance(-0.5, 18, m_drivetrain));
+
     // Setup SmartDashboard options
     m_chooser.setDefaultOption("Auto Routine Distance", new AutonomousDistance(m_drivetrain));
     m_chooser.addOption("Auto Routine Time", new AutonomousTime(m_drivetrain));
@@ -85,24 +104,38 @@ public class RobotContainer {
     return m_chooser.getSelected();
   }
 
-  // we want forward to be axis 3 on the controller
-  // we want backwards to be axis 2 on the controller
-  public double CalculuteSpeed(){
-    // each axis goes from 0->1
-    // full axis 2 is reverse, so it needs to be -1
-    double reverse =  m_controller.getRawAxis(2);
-    double forward = - m_controller.getRawAxis(3);
- 
-    return (reverse + forward); 
+  /**
+   * Return the speed for the robot during teleop based on
+   * the specified axis. Pass -1 to use the LT and RT combination.
+   * 
+   * @param speedAxis the axis to get the speed from, or -1 for LT/RT. 
+   * 
+   * @return the speed value
+   */
+  public double CalculuteSpeed(int speedAxis){
+    if (speedAxis == -1) {
+      // each axis goes from 0->1
+      // RT is reverse, so it needs to be -1
+      double reverse =  m_controller.getRawAxis(GamePad.LeftToggle);
+      double forward = - m_controller.getRawAxis(GamePad.RightToggle);
+  
+      return (reverse + forward);
+    }
+    else {
+      return (m_controller.getRawAxis(speedAxis));
+    } 
   }
 
   /**
    * Use this to pass the teleop command to the main {@link Robot} class.
-   *
+   *  
    * @return the command to run in teleop
    */
   public Command getArcadeDriveCommand() {
+    int speedAxis = -1; // GamePad.LeftStick.UpDown
+    int rotationAxis = GamePad.RightStick.LeftRight;
+
     return new ArcadeDrive(
-        m_drivetrain, () -> CalculuteSpeed(), () -> m_controller.getRawAxis(0));
+       m_drivetrain, () -> CalculuteSpeed(speedAxis), () -> m_controller.getRawAxis(rotationAxis));
   }
 }

@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class AutonomousDistance extends SequentialCommandGroup {
   /**
@@ -15,10 +16,59 @@ public class AutonomousDistance extends SequentialCommandGroup {
    * @param drivetrain The drivetrain subsystem on which this command will run
    */
   public AutonomousDistance(Drivetrain drivetrain) {
+    double speed = 0.5;
+
+    DriveSquare(drivetrain, speed);
+    //DriveCourse(drivetrain, speed);
+  }
+
+  private void DriveSquare(Drivetrain drivetrain, double speed) {
     addCommands(
-        new DriveDistance(-0.5, 10, drivetrain),
-        new TurnDegrees(-0.5, 180, drivetrain),
-        new DriveDistance(-0.5, 10, drivetrain),
-        new TurnDegrees(0.5, 180, drivetrain));
+          new DriveDistance(speed, 18.0, drivetrain)
+        , new WaitCommand(0.1)
+        , new TurnDegrees(-speed, 90, drivetrain)
+        , new WaitCommand(0.1)
+        , new DriveDistance(speed, 18, drivetrain)
+        , new WaitCommand(0.1)
+        , new TurnDegrees(-speed, 90, drivetrain)
+        , new WaitCommand(0.1)
+        , new DriveDistance(speed, 18.0, drivetrain)
+        , new WaitCommand(0.1)
+        , new TurnDegrees(-speed, 90, drivetrain)
+        , new WaitCommand(0.1)
+        , new DriveDistance(speed, 18, drivetrain)
+        , new WaitCommand(0.1)
+        , new TurnDegrees(-speed, 90, drivetrain)
+      );
+  }
+
+  private void DriveCourse(Drivetrain drivetrain, double speed) {
+    addCommands(
+          new DriveDistance(speed, 18.0, drivetrain)
+        , new WaitCommand(0.1)
+        , new TurnDegrees(-speed, 90, drivetrain)
+        , new WaitCommand(0.1)
+        , new DriveDistance(speed, 18, drivetrain)
+        , new WaitCommand(0.1)
+        , new TurnDegrees(-speed, 90, drivetrain)
+        , new WaitCommand(0.1)
+        , new DriveDistance(speed, 9, drivetrain)
+        , new WaitCommand(0.1)
+        , new TurnDegrees(-speed, 45, drivetrain)
+        , new WaitCommand(0.1)
+        , new DriveDistance(speed, 9 * Math.sqrt(2), drivetrain)
+        , new WaitCommand(0.1)
+        , new TurnDegrees(speed, 45, drivetrain)
+        , new WaitCommand(0.16)
+        , new DriveDistance(speed, 9, drivetrain)
+        , new WaitCommand(0.16)
+        , new TurnDegrees(speed, 90, drivetrain)
+        , new WaitCommand(0.16)
+        , new DriveDistance(speed, 18, drivetrain)
+        , new WaitCommand(0.16)
+        , new TurnDegrees(speed, 90, drivetrain)
+        , new WaitCommand(0.16)
+        , new DriveDistance(speed, 17, drivetrain)
+        );
   }
 }

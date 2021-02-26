@@ -5,24 +5,25 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.Drivetrain;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class TurnDegrees extends CommandBase {
   private final Drivetrain m_drive;
-  private final double m_degrees;
-  private final double m_speed;
+  private final double m_targetDegrees;
+  private final double m_rotationSpeed;
 
   /**
    * Creates a new TurnDegrees. This command will turn your robot for a desired rotation (in
    * degrees) and rotational speed.
    *
-   * @param speed The speed which the robot will drive. Negative is in reverse.
-   * @param degrees Degrees to turn. Leverages encoders to compare distance.
+   * @param rotationSpeed The speed which the robot will drive. Negative is in reverse.
+   * @param targetDegrees Degrees to turn. Leverages encoders to compare distance.
    * @param drive The drive subsystem on which this command will run
    */
-  public TurnDegrees(double speed, double degrees, Drivetrain drive) {
-    m_degrees = degrees;
-    m_speed = speed;
+  public TurnDegrees(double rotationSpeed, double targetDegrees, Drivetrain drive) {
+    m_targetDegrees = targetDegrees;
+    m_rotationSpeed = rotationSpeed;
     m_drive = drive;
     addRequirements(drive);
   }
@@ -31,20 +32,28 @@ public class TurnDegrees extends CommandBase {
   @Override
   public void initialize() {
     // Set motors to stop, read encoder values for starting point
-    m_drive.arcadeDrive(0, 0);
+    m_drive.stop();
     m_drive.resetEncoders();
+    m_drive.resetGyro();
+    SmartDashboard.putNumber("GyroX", m_drive.getGyroAngleX());
+    SmartDashboard.putNumber("GyroY", m_drive.getGyroAngleY());
+    SmartDashboard.putNumber("GyroZ", m_drive.getGyroAngleZ());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drive.arcadeDrive(0, m_speed);
+    m_drive.arcadeDrive(0, m_rotationSpeed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drive.arcadeDrive(0, 0);
+    m_drive.stop();
+    SmartDashboard.putNumber("GyroX'", m_drive.getGyroAngleX());
+    SmartDashboard.putNumber("GyroY'", m_drive.getGyroAngleY());
+    SmartDashboard.putNumber("GyroZ'", m_drive.getGyroAngleZ());
+
   }
 
   // Returns true when the command should end.
@@ -55,9 +64,12 @@ public class TurnDegrees extends CommandBase {
        has a wheel placement diameter (149 mm) - width of the wheel (8 mm) = 141 mm
        or 5.551 inches. We then take into consideration the width of the tires.
     */
-    double inchPerDegree = Math.PI * 5.551 / 360;
+    //double inchPerDegree = Math.PI * 5.551 / 360;
+    // Lowered this value since the robot was turning too far.
+    // May need to experiment to get the right value for your robot
+    double inchPerDegree = Math.PI * 4.876 / 360;
     // Compare distance travelled from start to distance based on degree turn
-    return getAverageTurningDistance() >= (inchPerDegree * m_degrees);
+    return getAverageTurningDistance() >= (inchPerDegree * m_targetDegrees);
   }
 
   private double getAverageTurningDistance() {
