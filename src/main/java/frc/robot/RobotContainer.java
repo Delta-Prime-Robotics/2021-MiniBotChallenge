@@ -69,12 +69,12 @@ public class RobotContainer {
         .whenActive(new PrintCommand("Button A Pressed"))
         .whenInactive(new PrintCommand("Button A Released"));
 
-    new JoystickButton(m_controller, GamePad.Button.RB)
-        .whenPressed(new TurnDegrees(0.4, 90, m_drivetrain))
+    new JoystickButton(m_controller, GamePad.Button.LB)
+        .whenPressed(new TurnDegrees(0.6, 90, m_drivetrain))
         .whenReleased(() -> m_drivetrain.stop());
 
-    new JoystickButton(m_controller, GamePad.Button.LB)
-      .whenPressed(new TurnDegrees(-0.4, 90, m_drivetrain))
+    new JoystickButton(m_controller, GamePad.Button.RB)
+      .whenPressed(new TurnDegrees(-0.6, 90, m_drivetrain))
       .whenReleased(() -> m_drivetrain.stop());
       
     new JoystickButton(m_controller, GamePad.Button.Y)
@@ -84,10 +84,13 @@ public class RobotContainer {
       .whenPressed(() -> m_drivetrain.resetEncoders());
 
     new JoystickButton(m_controller, GamePad.Button.A)
-      .whenPressed(new DriveDistance(0.5, 18, m_drivetrain));
+      .whenPressed(new DriveDistance(0.8, 16, m_drivetrain));
 
     new JoystickButton(m_controller, GamePad.Button.B)
-      .whenPressed(new DriveDistance(-0.5, 18, m_drivetrain));
+      .whenPressed(new DriveDistance(-0.8, 16, m_drivetrain));
+
+    new JoystickButton(m_controller, GamePad.Button.Start)
+      .whenPressed(new DriveDistance(0.8, 10, m_drivetrain));
 
     // Setup SmartDashboard options
     m_chooser.setDefaultOption("Auto Routine Distance", new AutonomousDistance(m_drivetrain));
@@ -127,15 +130,34 @@ public class RobotContainer {
   }
 
   /**
+   * Return the speed for the robot during teleop based on
+   * the specified axis. This is a ramp to reduce the push and
+   * pull from the raw joystick value
+   * 
+   * @param speed the speed value from -1 to 1 that we want to fit
+   *              into our speed curve  
+   * 
+   * @return the speed value
+   */
+  public double SpeedRamp(double speed){
+    if (Math.abs(speed) < .1) 
+    {
+        return 0;
+    }
+    
+    return .8 * speed;
+  }
+
+  /**
    * Use this to pass the teleop command to the main {@link Robot} class.
    *  
    * @return the command to run in teleop
    */
   public Command getArcadeDriveCommand() {
-    int speedAxis = -1; // GamePad.LeftStick.UpDown
+    int speedAxis = GamePad.RightStick.UpDown; //-1; //GamePad.LeftStick.UpDown;
     int rotationAxis = GamePad.RightStick.LeftRight;
 
     return new ArcadeDrive(
-       m_drivetrain, () -> CalculuteSpeed(speedAxis), () -> m_controller.getRawAxis(rotationAxis));
+       m_drivetrain, () -> -SpeedRamp(m_controller.getRawAxis(speedAxis)), () -> m_controller.getRawAxis(rotationAxis));
   }
 }

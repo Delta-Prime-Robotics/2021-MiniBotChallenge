@@ -67,7 +67,7 @@ public class TurnDegrees extends CommandBase {
     //double inchPerDegree = Math.PI * 5.551 / 360;
     // Lowered this value since the robot was turning too far.
     // May need to experiment to get the right value for your robot
-    double inchPerDegree = Math.PI * 4.876 / 360;
+    double inchPerDegree = Math.PI * 4.25 / 360.0;
     // Compare distance travelled from start to distance based on degree turn
     return getAverageTurningDistance() >= (inchPerDegree * m_targetDegrees);
   }
