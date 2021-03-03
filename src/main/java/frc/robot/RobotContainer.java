@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.io.Console;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -138,14 +140,37 @@ public class RobotContainer {
    *              into our speed curve  
    * 
    * @return the speed value
+   * 
+   * using the formula :
+   *  b / (1 + exp(-ax))^{c}
+   * using the fixed value:
+   *  b = 1.1
+   *  a = 3
+   *  c = 3
    */
-  public double SpeedRamp(double speed){
-    if (Math.abs(speed) < .1) 
-    {
-        return 0;
-    }
-    
-    return .8 * speed;
+  public double SpeedRamp(double speed)
+  {
+      double curveval = 1.1 / Math.pow(1.0 + Math.exp(-3*Math.abs(speed)),3);
+
+      if (speed > 0)
+        return curveval;
+      else
+        return -curveval;
+  }
+  
+  
+  /*
+  * Sam's speed curve a(x^{3})+x(1-a)
+  * where a is the define below, and x is speed
+  * input from the control axis 
+  */
+  static double a = .5;
+
+  public double SpeedRamp2(double speed)
+  {
+      double val = (Math.pow(speed,3) * a)  + (speed * a);
+
+      return  val;
   }
 
   /**
@@ -158,6 +183,6 @@ public class RobotContainer {
     int rotationAxis = GamePad.RightStick.LeftRight;
 
     return new ArcadeDrive(
-       m_drivetrain, () -> -SpeedRamp(m_controller.getRawAxis(speedAxis)), () -> m_controller.getRawAxis(rotationAxis));
+       m_drivetrain, () -> -SpeedRamp(m_controller.getRawAxis(speedAxis)), () -> SpeedRamp(m_controller.getRawAxis(rotationAxis)));
   }
 }
